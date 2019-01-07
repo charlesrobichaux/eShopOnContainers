@@ -60,6 +60,8 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
+                    builder.AddEventSourceLogger();
+                    builder.AddAzureWebAppDiagnostics();
                 })
                 .UseSerilog((builderContext, config) =>
                 {

@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="2.2.2" />
     <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="2.2.1" />   
-    <PackageReference Include="AspNetCore.HealthChecks.AzureServiceBus" Version="2.2.3" />
+    <PackageReference Include="AspNetCore.HealthChecks.AzureServiceBus" Version="2.2.4" />
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="2.2.0" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App"  />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="mongocsharpdriver" Version="2.7.2" />
     <PackageReference Include="MongoDB.Bson" Version="2.7.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.7.2" />
