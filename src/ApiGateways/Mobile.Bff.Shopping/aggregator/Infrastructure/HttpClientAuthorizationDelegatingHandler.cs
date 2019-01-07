@@ -28,22 +28,22 @@ namespace Microsoft.eShopOnContainers.Mobile.Shopping.HttpAggregator.Infrastruct
                 request.Headers.Add("Authorization", new List<string>() { authorizationHeader });
             }
 
-            var token = await GetToken();
+            var token = await GetToken().ConfigureAwait(false);
 
             if (token != null)
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
 
-            return await base.SendAsync(request, cancellationToken);
+            return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
-        async Task<string> GetToken()
+        private async Task<string> GetToken()
         {
             const string ACCESS_TOKEN = "access_token";
 
             return await _httpContextAccesor.HttpContext
-                .GetTokenAsync(ACCESS_TOKEN);
+                .GetTokenAsync(ACCESS_TOKEN).ConfigureAwait(false);
         }
     }
 }

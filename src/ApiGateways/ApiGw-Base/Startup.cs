@@ -101,8 +101,6 @@ namespace OcelotApiGw
                 Predicate = r => r.Name.Contains("self")
             });
 
-            loggerFactory.AddConsole(_cfg.GetSection("Logging"));
-
             app.UseCors("CorsPolicy");
 
             app.UseOcelot().Wait();
