@@ -1,1 +1,1 @@
-# This is a fork of the ([sample .NET Core reference application, powered by Microsoft](https://github.com/dotnet-architecture/eShopOnContainers)) for my learning and development of a microservice architecture using Docker containers.
+This is a fork of the ([sample .NET Core reference application, powered by Microsoft](https://github.com/dotnet-architecture/eShopOnContainers)) for my learning and development of a microservice architecture using Docker containers.
