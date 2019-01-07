@@ -11,8 +11,9 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API.Infrastructure.Filt
         public void Apply(Operation operation, OperationFilterContext context)
         {
             // Check for authorize attribute
-            var hasAuthorize = context.ApiDescription.ControllerAttributes().OfType<AuthorizeAttribute>().Any() ||
-                               context.ApiDescription.ActionAttributes().OfType<AuthorizeAttribute>().Any();
+            if (!context.ApiDescription.TryGetMethodInfo(out var methodInfo)) return;
+            var customAttributes = methodInfo.DeclaringType.GetCustomAttributes(true);
+            var hasAuthorize = customAttributes.OfType<AuthorizeAttribute>().Any();
 
             if (hasAuthorize)
             {
@@ -27,6 +28,15 @@ namespace Microsoft.eShopOnContainers.Services.Marketing.API.Infrastructure.Filt
                     }
                 };
             }
+            // Had to add below when upgrading Swashbuckle to 2.8.0.
+            // see https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/603
+            //operation.Security = new List<OpenApiSecurityRequirement>()
+            //{
+            //    new OpenApiSecurityRequirement()
+            //    {
+            //        new OpenApiSecurityScheme(),
+            //    }
+            //};
         }
     }
 }

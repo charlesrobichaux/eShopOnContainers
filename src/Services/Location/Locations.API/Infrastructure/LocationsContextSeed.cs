@@ -22,18 +22,18 @@
 
             if (!ctx.Locations.Database.GetCollection<Locations>(nameof(Locations)).AsQueryable().Any())
             {
-                await SetIndexes();
-                await SetNorthAmerica();
-                await SetSouthAmerica();
-                await SetAfrica();
-                await SetEurope();
-                await SetAsia();
-                await SetAustralia();
-                await SetBarcelonaLocations();
+                await SetIndexes().ConfigureAwait(false);
+                await SetNorthAmerica().ConfigureAwait(false);
+                await SetSouthAmerica().ConfigureAwait(false);
+                await SetAfrica().ConfigureAwait(false);
+                await SetEurope().ConfigureAwait(false);
+                await SetAsia().ConfigureAwait(false);
+                await SetAustralia().ConfigureAwait(false);
+                await SetBarcelonaLocations().ConfigureAwait(false);
             }
         }
 
-        static async Task SetNorthAmerica()
+        private static async Task SetNorthAmerica()
         {
             var us = new Locations()
             {
@@ -43,11 +43,11 @@
             }; 
             us.SetLocation(-103.219329, 48.803281);
             us.SetArea(GetNorthAmericaPoligon());
-            await ctx.Locations.InsertOneAsync(us);
-            await SetUSLocations(us.Id);
+            await ctx.Locations.InsertOneAsync(us).ConfigureAwait(false);
+            await SetUSLocations(us.Id).ConfigureAwait(false);
         }
 
-        static async Task SetUSLocations(string parentId)
+        private static async Task SetUSLocations(string parentId)
         {
             var us = new Locations()
             {
@@ -58,11 +58,11 @@
             };
             us.SetLocation(-101.357386, 41.650455);
             us.SetArea(GetUSPoligon());
-            await ctx.Locations.InsertOneAsync(us);
-            await SetWashingtonLocations(us.Id);
+            await ctx.Locations.InsertOneAsync(us).ConfigureAwait(false);
+            await SetWashingtonLocations(us.Id).ConfigureAwait(false);
         }
 
-        static async Task SetWashingtonLocations(string parentId)
+        private static async Task SetWashingtonLocations(string parentId)
         {
             var wht = new Locations()
             {
@@ -73,12 +73,12 @@
             };
             wht.SetLocation(-119.542781, 47.223652);
             wht.SetArea(GetWashingtonPoligon());
-            await ctx.Locations.InsertOneAsync(wht);
-            await SetSeattleLocations(wht.Id);
-            await SetRedmondLocations(wht.Id);
+            await ctx.Locations.InsertOneAsync(wht).ConfigureAwait(false);
+            await SetSeattleLocations(wht.Id).ConfigureAwait(false);
+            await SetRedmondLocations(wht.Id).ConfigureAwait(false);
         }
 
-        static async Task SetSeattleLocations(string parentId)
+        private static async Task SetSeattleLocations(string parentId)
         {
             var stl = new Locations()
             {
@@ -89,10 +89,10 @@
             };
             stl.SetArea(GetSeattlePoligon());
             stl.SetLocation(-122.330747, 47.603111);
-            await ctx.Locations.InsertOneAsync(stl);
+            await ctx.Locations.InsertOneAsync(stl).ConfigureAwait(false);
         }
 
-        static async Task SetRedmondLocations(string parentId)
+        private static async Task SetRedmondLocations(string parentId)
         {
             var rdm = new Locations()
             {
@@ -103,10 +103,10 @@
             };
             rdm.SetLocation(-122.122887, 47.674961);
             rdm.SetArea(GetRedmondPoligon());
-            await ctx.Locations.InsertOneAsync(rdm);
+            await ctx.Locations.InsertOneAsync(rdm).ConfigureAwait(false);
         }
 
-        static async Task SetBarcelonaLocations()
+        private static async Task SetBarcelonaLocations()
         {
             var bcn = new Locations()
             {
@@ -116,10 +116,10 @@
             };
             bcn.SetLocation(2.156453, 41.395226);
             bcn.SetArea(GetBarcelonaPoligon());
-            await ctx.Locations.InsertOneAsync(bcn);
+            await ctx.Locations.InsertOneAsync(bcn).ConfigureAwait(false);
         }
 
-        static async Task SetSouthAmerica()
+        private static async Task SetSouthAmerica()
         {
             var sa = new Locations()
             {
@@ -129,10 +129,10 @@
             };
             sa.SetLocation(-60.328704, -16.809748); 
             sa.SetArea(GetSouthAmericaPoligon());
-            await ctx.Locations.InsertOneAsync(sa);
+            await ctx.Locations.InsertOneAsync(sa).ConfigureAwait(false);
         }
 
-        static async Task SetAfrica()
+        private static async Task SetAfrica()
         {
             var afc = new Locations()
             {
@@ -142,10 +142,10 @@
             };
             afc.SetLocation(19.475383, 13.063667); 
             afc.SetArea(GetAfricaPoligon());
-            await ctx.Locations.InsertOneAsync(afc);
+            await ctx.Locations.InsertOneAsync(afc).ConfigureAwait(false);
         }
 
-        static async Task SetEurope()
+        private static async Task SetEurope()
         {
             var eu = new Locations()
             {
@@ -155,10 +155,10 @@
             };
             eu.SetLocation(13.147258, 49.947844); 
             eu.SetArea(GetEuropePoligon());
-            await ctx.Locations.InsertOneAsync(eu);
+            await ctx.Locations.InsertOneAsync(eu).ConfigureAwait(false);
         }
 
-        static async Task SetAsia()
+        private static async Task SetAsia()
         {
             var asa = new Locations()
             {
@@ -168,10 +168,10 @@
             };
             asa.SetLocation(97.522257, 56.069107);
             asa.SetArea(GetAsiaPoligon());
-            await ctx.Locations.InsertOneAsync(asa);
+            await ctx.Locations.InsertOneAsync(asa).ConfigureAwait(false);
         }
 
-        static async Task SetAustralia()
+        private static async Task SetAustralia()
         {
             var aus = new Locations()
             {
@@ -181,18 +181,22 @@
             };
             aus.SetLocation(133.733195, -25.010726);
             aus.SetArea(GetAustraliaPoligon());
-            await ctx.Locations.InsertOneAsync(aus);
+            await ctx.Locations.InsertOneAsync(aus).ConfigureAwait(false);
         }
 
-        static async Task SetIndexes()
+        private static async Task SetIndexes()
         {
             // Set location indexes
             var builder = Builders<Locations>.IndexKeys;
-            var keys = builder.Geo2DSphere(prop => prop.Location);
-            await ctx.Locations.Indexes.CreateOneAsync(keys);
+            //var keys = builder.Geo2DSphere(prop => prop.Location);
+            //await ctx.Locations.Indexes.CreateOneAsync(keys);
+            // Replaced the obsolete function CreateOneAsync with MongoDb implementation found at
+            // https://mongodb.github.io/mongo-csharp-driver/2.6/apidocs/html/T_MongoDB_Driver_CreateIndexModel_1.htm
+            var indexModel = new CreateIndexModel<Locations>(builder.Ascending(x => x.Location));
+            await ctx.Locations.Indexes.CreateOneAsync(indexModel).ConfigureAwait(false);
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetNorthAmericaPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetNorthAmericaPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -207,7 +211,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetSouthAmericaPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetSouthAmericaPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -223,7 +227,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetAfricaPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetAfricaPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -241,7 +245,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetEuropePoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetEuropePoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -255,7 +259,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetAsiaPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetAsiaPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -270,7 +274,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetAustraliaPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetAustraliaPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -285,7 +289,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetUSPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetUSPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -298,7 +302,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetSeattlePoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetSeattlePoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -311,7 +315,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetRedmondPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetRedmondPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -326,7 +330,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetWashingtonPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetWashingtonPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
                      {
@@ -338,7 +342,7 @@
                      };
         }
 
-        static List<GeoJson2DGeographicCoordinates> GetBarcelonaPoligon()
+        private static List<GeoJson2DGeographicCoordinates> GetBarcelonaPoligon()
         {
             return new List<GeoJson2DGeographicCoordinates>()
             {
