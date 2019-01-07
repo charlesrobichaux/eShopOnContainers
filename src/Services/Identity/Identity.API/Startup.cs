@@ -151,7 +151,7 @@ namespace Microsoft.eShopOnContainers.Services.Identity.API
             app.UseStaticFiles();
 
             // TODO: LOOK AT BELOW LINES BEFORE DEPLOYING TO PRODUCTION ENV
-            // Make work identity server redirections in Edge and lastest versions of browers. WARN: Not valid in a production environment.
+            // Make work identity server redirections in Edge and latest versions of browsers. WARN: Not valid in a production environment.
             app.Use(async (context, next) =>
             {
                 context.Response.Headers.Add("Content-Security-Policy", "script-src 'unsafe-inline'");
