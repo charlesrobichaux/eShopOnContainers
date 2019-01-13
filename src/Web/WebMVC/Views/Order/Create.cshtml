@@ -84,7 +84,7 @@
             </div>
         </section>
 
-        @await Html.PartialAsync("_OrderItems")
+        @await Html.PartialAsync("_OrderItems").ConfigureAwait(false)
 
         <section class="esh-orders_new-section">
             <div class="form-group row">
@@ -101,5 +101,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial").ConfigureAwait(false);}
 }

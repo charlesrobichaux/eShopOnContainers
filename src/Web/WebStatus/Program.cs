@@ -23,7 +23,7 @@ namespace WebStatus
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
-                    builder.AddEventSourceLogger();
+                    // builder.AddEventSourceLogger();
                     builder.AddAzureWebAppDiagnostics();
                 })
                 .UseApplicationInsights()

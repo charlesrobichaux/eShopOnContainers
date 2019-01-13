@@ -44,7 +44,7 @@
                     </a>
                 </section>
 
-                @await Html.PartialAsync("_LoginPartial")
+                @await Html.PartialAsync("_LoginPartial").ConfigureAwait(false)
             </article>
         </div>
     </header>

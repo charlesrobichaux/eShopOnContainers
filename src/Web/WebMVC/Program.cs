@@ -27,7 +27,7 @@ namespace Microsoft.eShopOnContainers.WebMVC
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
-                    builder.AddEventSourceLogger();
+                    // builder.AddEventSourceLogger();
                     builder.AddAzureWebAppDiagnostics();
                 })
                 .UseApplicationInsights()

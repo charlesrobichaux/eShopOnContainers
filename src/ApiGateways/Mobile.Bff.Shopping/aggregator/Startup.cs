@@ -195,6 +195,7 @@ namespace Microsoft.eShopOnContainers.Mobile.Shopping.HttpAggregator
                    .AddPolicyHandler(GetCircuitBreakerPolicy());
 
             services.AddHttpClient<IOrderApiClient, OrderApiClient>()
+                    
                    .AddPolicyHandler(GetRetryPolicy())
                    .AddPolicyHandler(GetCircuitBreakerPolicy());
 

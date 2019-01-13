@@ -67,7 +67,7 @@ namespace Microsoft.eShopOnContainers.Services.Identity.API
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
-                    builder.AddEventSourceLogger();
+                    // builder.AddEventSourceLogger();
                     builder.AddAzureWebAppDiagnostics();
                 })
                 .UseApplicationInsights()

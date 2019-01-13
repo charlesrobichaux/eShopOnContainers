@@ -43,7 +43,7 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
-                    builder.AddEventSourceLogger();
+                    // builder.AddEventSourceLogger();
                     builder.AddAzureWebAppDiagnostics();
                 })
                 .UseApplicationInsights()

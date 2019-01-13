@@ -52,7 +52,7 @@
         </div>        
     </div>    
     <br />
-        @if (Model != null && Model.CampaignItems !=null && Model.CampaignItems.Any())
+        @if (Model?.CampaignItems != null && Model.CampaignItems.Any())
         {
             <div class="card-group esh-campaigns-items row">
                 @foreach (var catalogItem in Model.CampaignItems)

@@ -10,8 +10,8 @@ namespace Microsoft.eShopOnContainers.WebMVC.Controllers
     [Authorize]
     public class OrderController : Controller
     {
-        private IOrderingService _orderSvc;
-        private IBasketService _basketSvc;
+        private readonly IOrderingService _orderSvc;
+        private readonly IBasketService _basketSvc;
         private readonly IIdentityParser<ApplicationUser> _appUserParser;
         public OrderController(IOrderingService orderSvc, IBasketService basketSvc, IIdentityParser<ApplicationUser> appUserParser)
         {
@@ -24,7 +24,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Controllers
         {
 
             var user = _appUserParser.Parse(HttpContext.User);
-            var order = await _basketSvc.GetOrderDraft(user.Id);
+            var order = await _basketSvc.GetOrderDraft(user.Id).ConfigureAwait(false);
             var vm = _orderSvc.MapUserInfoIntoOrder(user, order);
             vm.CardExpirationShortFormat();
 
@@ -41,7 +41,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Controllers
                     var user = _appUserParser.Parse(HttpContext.User);
                     var basket = _orderSvc.MapOrderToBasket(model);
 
-                    await _basketSvc.Checkout(basket);
+                    await _basketSvc.Checkout(basket).ConfigureAwait(false);
 
                     //Redirect to historic list.
                     return RedirectToAction("Index");
@@ -57,7 +57,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Controllers
 
         public async Task<IActionResult> Cancel(string orderId)
         {
-            await _orderSvc.CancelOrder(orderId);
+            await _orderSvc.CancelOrder(orderId).ConfigureAwait(false);
 
             //Redirect to historic list.
             return RedirectToAction("Index");
@@ -67,14 +67,14 @@ namespace Microsoft.eShopOnContainers.WebMVC.Controllers
         {
             var user = _appUserParser.Parse(HttpContext.User);
 
-            var order = await _orderSvc.GetOrder(user, orderId);
+            var order = await _orderSvc.GetOrder(user, orderId).ConfigureAwait(false);
             return View(order);
         }
 
         public async Task<IActionResult> Index(Order item)
         {
             var user = _appUserParser.Parse(HttpContext.User);
-            var vm = await _orderSvc.GetMyOrders(user);
+            var vm = await _orderSvc.GetMyOrders(user).ConfigureAwait(false);
             return View(vm);
         }
     }

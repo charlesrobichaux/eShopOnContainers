@@ -17,7 +17,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
         private readonly string _basketByPassUrl;
         private readonly string _purchaseUrl;
 
-        private readonly string _bffUrl;
+        // private readonly string _bffUrl;
 
         public BasketService(HttpClient httpClient, IOptions<AppSettings> settings)
         {
@@ -32,7 +32,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
         {
             var uri = API.Basket.GetBasket(_basketByPassUrl, user.Id);
 
-            var responseString = await _apiClient.GetStringAsync(uri);
+            var responseString = await _apiClient.GetStringAsync(uri).ConfigureAwait(false);
 
             return string.IsNullOrEmpty(responseString) ?
                 new Basket() { BuyerId = user.Id } :
@@ -45,7 +45,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
 
             var basketContent = new StringContent(JsonConvert.SerializeObject(basket), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _apiClient.PostAsync(uri, basketContent);
+            var response = await _apiClient.PostAsync(uri, basketContent).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
 
@@ -57,7 +57,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
             var uri = API.Basket.CheckoutBasket(_basketByPassUrl);
             var basketContent = new StringContent(JsonConvert.SerializeObject(basket), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _apiClient.PostAsync(uri, basketContent);
+            var response = await _apiClient.PostAsync(uri, basketContent).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
         }
@@ -78,11 +78,11 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
 
             var basketContent = new StringContent(JsonConvert.SerializeObject(basketUpdate), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _apiClient.PutAsync(uri, basketContent);
+            var response = await _apiClient.PutAsync(uri, basketContent).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
 
-            var jsonResponse = await response.Content.ReadAsStringAsync();
+            var jsonResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<Basket>(jsonResponse);
         }
@@ -91,7 +91,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
         {
             var uri = API.Purchase.GetOrderDraft(_purchaseUrl, basketId);
 
-            var responseString = await _apiClient.GetStringAsync(uri);
+            var responseString = await _apiClient.GetStringAsync(uri).ConfigureAwait(false);
 
             var response =  JsonConvert.DeserializeObject<Order>(responseString);
 
@@ -111,7 +111,7 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
 
             var basketContent = new StringContent(JsonConvert.SerializeObject(newItem), System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _apiClient.PostAsync(uri, basketContent);
+            var response = await _apiClient.PostAsync(uri, basketContent).ConfigureAwait(false);
         }
     }
 }

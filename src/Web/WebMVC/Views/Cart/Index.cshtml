@@ -13,6 +13,6 @@
         @Html.Partial("_Header", new List<Header>() {
             new Header() { Controller = "Catalog", Text = "Back to catalog" } })
 
-        @await Component.InvokeAsync("CartList", new { user = UserManager.Parse(User) })
+        @await Component.InvokeAsync("CartList", new { user = UserManager.Parse(User) }).ConfigureAwait(false)
     </div>
 </form>

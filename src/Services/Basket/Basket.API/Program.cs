@@ -48,6 +48,8 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
+                    // builder.AddEventSourceLogger();
+                    builder.AddAzureWebAppDiagnostics();
                 })
                 .UseSerilog((builderContext, config) =>
                 {

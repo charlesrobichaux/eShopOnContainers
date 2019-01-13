@@ -32,7 +32,7 @@
                     Messages = new[] { context.Exception.Message }
                 };
 
-                // Result asigned to a result object but in destiny the response is empty. This is a known bug of .net core 1.1
+                // Result assigned to a result object but in destiny the response is empty. This is a known bug of .net core 1.1
                 //It will be fixed in .net core 1.1.2. See https://github.com/aspnet/Mvc/issues/5594 for more information
                 context.Result = new BadRequestObjectResult(json);
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -41,7 +41,7 @@
             {
                 var json = new JsonErrorResponse
                 {
-                    Messages = new[] { "An error occur.Try it again." }
+                    Messages = new[] { "An error has occur. Please try your request again." }
                 };
 
                 if (env.IsDevelopment())
@@ -49,7 +49,7 @@
                     json.DeveloperMessage = context.Exception;
                 }
 
-                // Result asigned to a result object but in destiny the response is empty. This is a known bug of .net core 1.1
+                // Result assigned to a result object but in destiny the response is empty. This is a known bug of .net core 1.1
                 // It will be fixed in .net core 1.1.2. See https://github.com/aspnet/Mvc/issues/5594 for more information
                 context.Result = new InternalServerErrorObjectResult(json);
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
