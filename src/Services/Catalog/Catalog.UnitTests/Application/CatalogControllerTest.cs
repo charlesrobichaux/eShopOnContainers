@@ -44,7 +44,7 @@ namespace UnitTest.Catalog.Application
 
             //Act
             var orderController = new CatalogController(_catalogServiceMock.Object);
-            var actionResult = await orderController.Index(fakeBrandFilterApplied, fakeTypesFilterApplied, fakePage, null);
+            var actionResult = await orderController.Index(fakeBrandFilterApplied, fakeTypesFilterApplied, fakePage, null).ConfigureAwait(false);
 
             //Assert
             var viewResult = Assert.IsType<ViewResult>(actionResult);

@@ -22,4 +22,10 @@
     <ProjectReference Include="..\Catalog.API\Catalog.API.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Mvc.ViewFeatures">
+      <HintPath>..\..\..\..\..\..\Users\charl\.nuget\packages\microsoft.aspnetcore.mvc.viewfeatures\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Mvc.ViewFeatures.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

@@ -3,22 +3,20 @@ using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
 using Microsoft.eShopOnContainers.Services.Basket.API.Model;
 using System;
 using System.Threading.Tasks;
+using NServiceBus;
 
 namespace Basket.API.IntegrationEvents.EventHandling
 {
-    public class OrderStartedIntegrationEventHandler : IIntegrationEventHandler<OrderStartedIntegrationEvent>
+    public class OrderStartedIntegrationEventHandler : IHandleMessages<OrderStartedIntegrationEvent>
     {
         private readonly IBasketRepository _repository;
 
-        public OrderStartedIntegrationEventHandler(IBasketRepository repository)
-        {
+        public OrderStartedIntegrationEventHandler(IBasketRepository repository) => 
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        }
 
-        public async Task Handle(OrderStartedIntegrationEvent @event)
-        {
-            await _repository.DeleteBasketAsync(@event.UserId.ToString());
-        }
+        
+        public Task Handle(OrderStartedIntegrationEvent @event, IMessageHandlerContext context) => 
+            _repository.DeleteBasketAsync(@event.UserId.ToString());
     }
 }
 

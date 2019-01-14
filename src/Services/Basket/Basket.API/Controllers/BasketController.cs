@@ -8,6 +8,7 @@ using Microsoft.eShopOnContainers.Services.Basket.API.Services;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using NServiceBus;
 
 namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
 {
@@ -19,29 +20,29 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
         private readonly IBasketRepository _repository;
         private readonly IIdentityService _identityService;
         private readonly IEventBus _eventBus;
+        private readonly IEndpointInstance _endpoint;
 
-        public BasketController(IBasketRepository repository, IIdentityService identityService, IEventBus eventBus)
+        public BasketController(IBasketRepository repository, IIdentityService identityService, IEventBus eventBus, IEndpointInstance endpoint)
         {
             _repository = repository;
             _identityService = identityService;
             _eventBus = eventBus;
+            _endpoint = endpoint;
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CustomerBasket), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<CustomerBasket>> GetBasketByIdAsync(string id)
         {
-            var basket = await _repository.GetBasketAsync(id);
+            var basket = await _repository.GetBasketAsync(id).ConfigureAwait(false);
 
             return basket ?? new CustomerBasket(id);
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(CustomerBasket), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<CustomerBasket>> UpdateBasketAsync([FromBody]CustomerBasket value)
-        {
-            return await _repository.UpdateBasketAsync(value);
-        }
+        public async Task<ActionResult<CustomerBasket>> UpdateBasketAsync([FromBody]CustomerBasket value) => 
+            await _repository.UpdateBasketAsync(value).ConfigureAwait(false);
 
         [Route("checkout")]
         [HttpPost]
@@ -54,7 +55,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
             basketCheckout.RequestId = (Guid.TryParse(requestId, out Guid guid) && guid != Guid.Empty) ?
                 guid : basketCheckout.RequestId;
 
-            var basket = await _repository.GetBasketAsync(userId);
+            var basket = await _repository.GetBasketAsync(userId).ConfigureAwait(false);
 
             if (basket == null)
             {
@@ -70,7 +71,8 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
             // Once basket is checkout, sends an integration event to
             // ordering.api to convert basket to order and proceeds with
             // order creation process
-            _eventBus.Publish(eventMessage);
+            //_eventBus.Publish(eventMessage);
+            await _endpoint.Publish(eventMessage).ConfigureAwait(false);
 
             return Accepted();
         }
@@ -78,9 +80,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
         // DELETE api/values/5
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
-        public async Task DeleteBasketByIdAsync(string id)
-        {
-            await _repository.DeleteBasketAsync(id);
-        }
+        public async Task DeleteBasketByIdAsync(string id) => 
+            await _repository.DeleteBasketAsync(id).ConfigureAwait(false);
     }
 }

@@ -27,6 +27,11 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="2.2.0" />
+    <PackageReference Include="NServiceBus" Version="7.1.6" />
+    <PackageReference Include="NServiceBus.Autofac" Version="7.0.0" />
+    <PackageReference Include="NServiceBus.Newtonsoft.Json" Version="2.2.0" />
+    <PackageReference Include="NServiceBus.Persistence.Sql" Version="4.4.0" />
+    <PackageReference Include="NServiceBus.RabbitMQ" Version="5.0.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
