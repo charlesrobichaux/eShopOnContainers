@@ -2,7 +2,6 @@
 using Basket.API.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
 using Microsoft.eShopOnContainers.Services.Basket.API.Model;
 using Microsoft.eShopOnContainers.Services.Basket.API.Services;
 using System;
@@ -19,14 +18,12 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API.Controllers
     {
         private readonly IBasketRepository _repository;
         private readonly IIdentityService _identityService;
-        private readonly IEventBus _eventBus;
         private readonly IEndpointInstance _endpoint;
 
-        public BasketController(IBasketRepository repository, IIdentityService identityService, IEventBus eventBus, IEndpointInstance endpoint)
+        public BasketController(IBasketRepository repository, IIdentityService identityService, IEndpointInstance endpoint)
         {
             _repository = repository;
             _identityService = identityService;
-            _eventBus = eventBus;
             _endpoint = endpoint;
         }
 

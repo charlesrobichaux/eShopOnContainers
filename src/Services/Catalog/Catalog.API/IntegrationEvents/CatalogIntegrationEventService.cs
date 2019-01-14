@@ -8,17 +8,18 @@ using Microsoft.eShopOnContainers.Services.Catalog.API.Infrastructure;
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
+using NServiceBus;
 
 namespace Catalog.API.IntegrationEvents
 {
     public class CatalogIntegrationEventService : ICatalogIntegrationEventService
     {
         private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
-        private readonly IEventBus _eventBus;
+        private readonly IEndpointInstance _eventBus;
         private readonly CatalogContext _catalogContext;
         private readonly IIntegrationEventLogService _eventLogService;
 
-        public CatalogIntegrationEventService(IEventBus eventBus, CatalogContext catalogContext,
+        public CatalogIntegrationEventService(IEndpointInstance eventBus, CatalogContext catalogContext,
         Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory)
         {
             _catalogContext = catalogContext ?? throw new ArgumentNullException(nameof(catalogContext));
@@ -31,13 +32,13 @@ namespace Catalog.API.IntegrationEvents
         {
             try
             {
-                await _eventLogService.MarkEventAsInProgressAsync(evt.Id);
-                _eventBus.Publish(evt);
-                await _eventLogService.MarkEventAsPublishedAsync(evt.Id);
+                await _eventLogService.MarkEventAsInProgressAsync(evt.Id).ConfigureAwait(false);
+                await _eventBus.Publish(evt).ConfigureAwait(false);
+                await _eventLogService.MarkEventAsPublishedAsync(evt.Id).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                await _eventLogService.MarkEventAsFailedAsync(evt.Id);
+                await _eventLogService.MarkEventAsFailedAsync(evt.Id).ConfigureAwait(false);
             }            
         }
 
@@ -48,9 +49,9 @@ namespace Catalog.API.IntegrationEvents
             await ResilientTransaction.New(_catalogContext)
                 .ExecuteAsync(async () => {
                     // Achieving atomicity between original catalog database operation and the IntegrationEventLog thanks to a local transaction
-                    await _catalogContext.SaveChangesAsync();
-                    await _eventLogService.SaveEventAsync(evt, _catalogContext.Database.CurrentTransaction.GetDbTransaction());
-                });
+                    await _catalogContext.SaveChangesAsync().ConfigureAwait(false);
+                    await _eventLogService.SaveEventAsync(evt, _catalogContext.Database.CurrentTransaction.GetDbTransaction()).ConfigureAwait(false);
+                }).ConfigureAwait(false);
         }
     }
 }

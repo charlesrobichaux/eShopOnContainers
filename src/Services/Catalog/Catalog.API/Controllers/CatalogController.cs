@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using NServiceBus;
 
 namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
 {
@@ -21,11 +22,12 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
         private readonly CatalogContext _catalogContext;
         private readonly CatalogSettings _settings;
         private readonly ICatalogIntegrationEventService _catalogIntegrationEventService;
-
-        public CatalogController(CatalogContext context, IOptionsSnapshot<CatalogSettings> settings, ICatalogIntegrationEventService catalogIntegrationEventService)
+        private readonly IEndpointInstance _endpoint;
+        public CatalogController(CatalogContext context, IOptionsSnapshot<CatalogSettings> settings, ICatalogIntegrationEventService catalogIntegrationEventService, IEndpointInstance endpoint)
         {
             _catalogContext = context ?? throw new ArgumentNullException(nameof(context));
             _catalogIntegrationEventService = catalogIntegrationEventService ?? throw new ArgumentNullException(nameof(catalogIntegrationEventService));
+            _endpoint = endpoint;
             _settings = settings.Value;
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -41,7 +43,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
         {
             if (!string.IsNullOrEmpty(ids))
             {
-                var items = await GetItemsByIdsAsync(ids);
+                var items = await GetItemsByIdsAsync(ids).ConfigureAwait(false);
 
                 if (!items.Any())
                 {
@@ -52,13 +54,13 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
             }
 
             var totalItems = await _catalogContext.CatalogItems
-                .LongCountAsync();
+                .LongCountAsync().ConfigureAwait(false);
 
             var itemsOnPage = await _catalogContext.CatalogItems
                 .OrderBy(c => c.Name)
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
@@ -79,7 +81,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
             var idsToSelect = numIds
                 .Select(id => id.Value);
 
-            var items = await _catalogContext.CatalogItems.Where(ci => idsToSelect.Contains(ci.Id)).ToListAsync();
+            var items = await _catalogContext.CatalogItems.Where(ci => idsToSelect.Contains(ci.Id)).ToListAsync().ConfigureAwait(false);
 
             items = ChangeUriPlaceholder(items);
 
@@ -98,7 +100,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
                 return BadRequest();
             }
 
-            var item = await _catalogContext.CatalogItems.SingleOrDefaultAsync(ci => ci.Id == id);
+            var item = await _catalogContext.CatalogItems.SingleOrDefaultAsync(ci => ci.Id == id).ConfigureAwait(false);
 
             var baseUri = _settings.PicBaseUrl;
             var azureStorageEnabled = _settings.AzureStorageEnabled;
@@ -121,13 +123,13 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
         {
             var totalItems = await _catalogContext.CatalogItems
                 .Where(c => c.Name.StartsWith(name))
-                .LongCountAsync();
+                .LongCountAsync().ConfigureAwait(false);
 
             var itemsOnPage = await _catalogContext.CatalogItems
                 .Where(c => c.Name.StartsWith(name))
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
@@ -150,12 +152,12 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
             }
 
             var totalItems = await root
-                .LongCountAsync();
+                .LongCountAsync().ConfigureAwait(false);
 
             var itemsOnPage = await root
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
@@ -176,12 +178,12 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
             }
 
             var totalItems = await root
-                .LongCountAsync();
+                .LongCountAsync().ConfigureAwait(false);
 
             var itemsOnPage = await root
                 .Skip(pageSize * pageIndex)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             itemsOnPage = ChangeUriPlaceholder(itemsOnPage);
 
@@ -192,19 +194,15 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
         [HttpGet]
         [Route("catalogtypes")]
         [ProducesResponseType(typeof(List<CatalogType>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<List<CatalogType>>> CatalogTypesAsync()
-        {
-            return await _catalogContext.CatalogTypes.ToListAsync();
-        }
+        public async Task<ActionResult<List<CatalogType>>> CatalogTypesAsync() => 
+            await _catalogContext.CatalogTypes.ToListAsync().ConfigureAwait(false);
 
         // GET api/v1/[controller]/CatalogBrands
         [HttpGet]
         [Route("catalogbrands")]
         [ProducesResponseType(typeof(List<CatalogBrand>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<List<CatalogBrand>>> CatalogBrandsAsync()
-        {
-            return await _catalogContext.CatalogBrands.ToListAsync();
-        }
+        public async Task<ActionResult<List<CatalogBrand>>> CatalogBrandsAsync() => 
+            await _catalogContext.CatalogBrands.ToListAsync().ConfigureAwait(false);
 
         //PUT api/v1/[controller]/items
         [Route("items")]
@@ -213,7 +211,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.Created)]
         public async Task<ActionResult> UpdateProductAsync([FromBody]CatalogItem productToUpdate)
         {
-            var catalogItem = await _catalogContext.CatalogItems.SingleOrDefaultAsync(i => i.Id == productToUpdate.Id);
+            var catalogItem = await _catalogContext.CatalogItems.SingleOrDefaultAsync(i => i.Id == productToUpdate.Id).ConfigureAwait(false);
 
             if (catalogItem == null)
             {
@@ -240,7 +238,7 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
             }
             else // Just save the updated product because the Product's Price hasn't changed.
             {
-                await _catalogContext.SaveChangesAsync();
+                await _catalogContext.SaveChangesAsync().ConfigureAwait(false);
             }
 
             return CreatedAtAction(nameof(ItemByIdAsync), new { id = productToUpdate.Id }, null);

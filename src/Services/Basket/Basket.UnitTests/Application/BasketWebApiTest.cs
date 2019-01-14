@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using NServiceBus;
 using Xunit;
 using IBasketIdentityService = Microsoft.eShopOnContainers.Services.Basket.API.Services.IIdentityService;
 
@@ -19,13 +20,13 @@ namespace UnitTest.Basket.Application
     {
         private readonly Mock<IBasketRepository> _basketRepositoryMock;
         private readonly Mock<IBasketIdentityService> _identityServiceMock;
-        private readonly Mock<IEventBus> _serviceBusMock;
+        private readonly Mock<IEndpointInstance> _serviceBusMock;
 
         public BasketWebApiTest()
         {
             _basketRepositoryMock = new Mock<IBasketRepository>();
             _identityServiceMock = new Mock<IBasketIdentityService>();
-            _serviceBusMock = new Mock<IEventBus>();
+            _serviceBusMock = new Mock<IEndpointInstance>();
         }
 
         [Fact]
@@ -44,7 +45,7 @@ namespace UnitTest.Basket.Application
             //Act
             var basketController = new BasketController(
                 _basketRepositoryMock.Object, _identityServiceMock.Object, _serviceBusMock.Object);
-            var actionResult = await basketController.GetBasketByIdAsync(fakeCustomerId);
+            var actionResult = await basketController.GetBasketByIdAsync(fakeCustomerId).ConfigureAwait(false);
 
             //Assert
             Assert.Equal((actionResult.Result as OkObjectResult).StatusCode, (int)System.Net.HttpStatusCode.OK);
