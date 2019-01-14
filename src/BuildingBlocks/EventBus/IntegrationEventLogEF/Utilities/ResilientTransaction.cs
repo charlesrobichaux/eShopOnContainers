@@ -12,7 +12,7 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF.Utili
 {
     public class ResilientTransaction
     {
-        private DbContext _context;
+        private readonly DbContext _context;
         private ResilientTransaction(DbContext context) =>
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -28,10 +28,10 @@ namespace Microsoft.eShopOnContainers.BuildingBlocks.IntegrationEventLogEF.Utili
             {
                 using (var transaction = _context.Database.BeginTransaction())
                 {
-                    await action();
+                    await action().ConfigureAwait(false);
                     transaction.Commit();
                 }
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

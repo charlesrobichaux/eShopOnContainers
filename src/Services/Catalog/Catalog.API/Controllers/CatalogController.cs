@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using NServiceBus;
 
 namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
 {
@@ -22,12 +21,11 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
         private readonly CatalogContext _catalogContext;
         private readonly CatalogSettings _settings;
         private readonly ICatalogIntegrationEventService _catalogIntegrationEventService;
-        private readonly IEndpointInstance _endpoint;
-        public CatalogController(CatalogContext context, IOptionsSnapshot<CatalogSettings> settings, ICatalogIntegrationEventService catalogIntegrationEventService, IEndpointInstance endpoint)
+
+        public CatalogController(CatalogContext context, IOptionsSnapshot<CatalogSettings> settings, ICatalogIntegrationEventService catalogIntegrationEventService)
         {
             _catalogContext = context ?? throw new ArgumentNullException(nameof(context));
             _catalogIntegrationEventService = catalogIntegrationEventService ?? throw new ArgumentNullException(nameof(catalogIntegrationEventService));
-            _endpoint = endpoint;
             _settings = settings.Value;
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -231,10 +229,10 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API.Controllers
                 var priceChangedEvent = new ProductPriceChangedIntegrationEvent(catalogItem.Id, productToUpdate.Price, oldPrice);
 
                 // Achieving atomicity between original Catalog database operation and the IntegrationEventLog thanks to a local transaction
-                await _catalogIntegrationEventService.SaveEventAndCatalogContextChangesAsync(priceChangedEvent);
+                await _catalogIntegrationEventService.SaveEventAndCatalogContextChangesAsync(priceChangedEvent).ConfigureAwait(false);
 
                 // Publish through the Event Bus and mark the saved event as published
-                await _catalogIntegrationEventService.PublishThroughEventBusAsync(priceChangedEvent);
+                await _catalogIntegrationEventService.PublishThroughEventBusAsync(priceChangedEvent).ConfigureAwait(false);
             }
             else // Just save the updated product because the Product's Price hasn't changed.
             {
