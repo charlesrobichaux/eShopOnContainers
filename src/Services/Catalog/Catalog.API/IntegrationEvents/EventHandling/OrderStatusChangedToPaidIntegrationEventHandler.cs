@@ -4,9 +4,10 @@
     using System.Threading.Tasks;
     using Infrastructure;
     using Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.Events;
+    using NServiceBus;
 
-    public class OrderStatusChangedToPaidIntegrationEventHandler : 
-        IIntegrationEventHandler<OrderStatusChangedToPaidIntegrationEvent>
+    public class OrderStatusChangedToPaidIntegrationEventHandler :
+        IHandleMessages<OrderStatusChangedToPaidIntegrationEvent>
     {
         private readonly CatalogContext _catalogContext;
 
@@ -15,7 +16,7 @@
             _catalogContext = catalogContext;
         }
 
-        public async Task Handle(OrderStatusChangedToPaidIntegrationEvent command)
+        public async Task Handle(OrderStatusChangedToPaidIntegrationEvent command, IMessageHandlerContext context)
         {
             //we're not blocking stock/inventory
             foreach (var orderStockItem in command.OrderStockItems)
@@ -25,7 +26,7 @@
                 catalogItem.RemoveStock(orderStockItem.Units);
             }
 
-            await _catalogContext.SaveChangesAsync();
+            await _catalogContext.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

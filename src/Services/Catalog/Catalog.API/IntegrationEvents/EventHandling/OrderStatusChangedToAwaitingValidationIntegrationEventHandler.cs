@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.eShopOnContainers.Services.Catalog.API.IntegrationEvents.EventHandling
 {
     using System.Threading.Tasks;
-    using BuildingBlocks.EventBus.Events;
     using Infrastructure;
     using System.Collections.Generic;
     using System.Linq;

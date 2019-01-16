@@ -11,7 +11,7 @@
     <None Remove="Views\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.9" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.10" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="2.2.2" />
     <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="2.2.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
