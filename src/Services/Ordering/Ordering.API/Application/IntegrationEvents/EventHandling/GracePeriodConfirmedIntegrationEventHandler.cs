@@ -27,7 +27,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
         public async Task Handle(GracePeriodConfirmedIntegrationEvent @event)
         {
             var command = new SetAwaitingValidationOrderStatusCommand(@event.OrderId);
-            await _mediator.Send(command);
+            await _mediator.Send(command).ConfigureAwait(false);
         }
     }
 }

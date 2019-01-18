@@ -35,7 +35,7 @@
         {
             // Add Integration event to clean the basket
             var orderStartedIntegrationEvent = new OrderStartedIntegrationEvent(message.UserId);
-            await _orderingIntegrationEventService.AddAndSaveEventAsync(orderStartedIntegrationEvent);
+            await _orderingIntegrationEventService.AddAndSaveEventAsync(orderStartedIntegrationEvent).ConfigureAwait(false);
             
             // Add/Update the Buyer AggregateRoot
             // DDD patterns comment: Add child entities and value-objects through the Order Aggregate-Root
@@ -52,7 +52,7 @@
              _orderRepository.Add(order);
 
             return await _orderRepository.UnitOfWork
-                .SaveEntitiesAsync();
+                .SaveEntitiesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

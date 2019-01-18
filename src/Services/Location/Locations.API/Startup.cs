@@ -23,10 +23,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
+using NServiceBus.Persistence.Sql;
 using RabbitMQ.Client;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Microsoft.eShopOnContainers.Services.Locations.API
@@ -146,10 +149,13 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
             services.AddTransient<ILocationsRepository, LocationsRepository>();
 
             //configure autofac
-            var container = new ContainerBuilder();
-            container.Populate(services);
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.Populate(services);
 
-            return new AutofacServiceProvider(container.Build());
+            // NServiceBus
+            var container = RegisterEventBus(containerBuilder);
+
+            return new AutofacServiceProvider(container);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -236,6 +242,87 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
             }
 
             app.UseAuthentication();
+        }
+
+        private IContainer RegisterEventBus(ContainerBuilder containerBuilder)
+        {
+            EnsureSqlDatabaseExists();
+
+            IEndpointInstance endpoint = null;
+            containerBuilder.Register(c => endpoint)
+                .As<IEndpointInstance>()
+                .SingleInstance();
+
+            var container = containerBuilder.Build();
+
+            var endpointConfiguration = new EndpointConfiguration("Location");
+
+            // Configure RabbitMQ transport
+            var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+            transport.UseConventionalRoutingTopology();
+            transport.ConnectionString(GetRabbitConnectionString());
+
+            // Configure persistence
+            var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+            persistence.SqlDialect<SqlDialect.MsSqlServer>();
+            persistence.ConnectionBuilder(connectionBuilder:
+                () => new SqlConnection(Configuration["SqlConnectionString"]));
+
+            // Use JSON.NET serializer
+            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+
+            // Enable the Outbox.
+            endpointConfiguration.EnableOutbox();
+
+            // Make sure NServiceBus creates queues in RabbitMQ, tables in SQL Server, etc.
+            // You might want to turn this off in production, so that DevOps can use scripts to create these.
+            endpointConfiguration.EnableInstallers();
+
+            // Turn on auditing.
+            endpointConfiguration.AuditProcessedMessagesTo("audit");
+
+            // Define conventions
+            var conventions = endpointConfiguration.Conventions();
+            conventions.DefiningEventsAs(c => c.Namespace != null && c.Name.EndsWith("IntegrationEvent"));
+
+            // Configure the DI container.
+            endpointConfiguration.UseContainer<AutofacBuilder>(customizations: customizations =>
+            {
+                customizations.ExistingLifetimeScope(container);
+            });
+
+            // Start the endpoint and register it with ASP.NET Core DI
+            endpoint = NServiceBus.Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+
+            return container;
+        }
+
+        private void EnsureSqlDatabaseExists()
+        {
+            var builder = new SqlConnectionStringBuilder(Configuration["SqlConnectionString"]);
+            var originalCatalog = builder.InitialCatalog;
+
+            builder.InitialCatalog = "master";
+            var masterConnectionString = builder.ConnectionString;
+
+            using (var connection = new SqlConnection(masterConnectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText =
+                    $"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '{originalCatalog}')" +
+                    $"  CREATE DATABASE [{originalCatalog}]";
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private string GetRabbitConnectionString()
+        {
+            var host = Configuration["EventBusConnection"];
+            var user = Configuration["EventBusUserName"];
+            var password = Configuration["EventBusPassword"];
+
+            return string.IsNullOrEmpty(user) ? $"host={host}" : $"host={host};username={user};password={password};";
         }
 
         private void RegisterEventBus(IServiceCollection services)

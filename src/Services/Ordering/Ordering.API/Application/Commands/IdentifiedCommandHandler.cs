@@ -37,21 +37,22 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Application.Commands
         /// just enqueues the original inner command.
         /// </summary>
         /// <param name="message">IdentifiedCommand which contains both original command & request ID</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Return value of inner command or default value if request same ID was found</returns>
         public async Task<R> Handle(IdentifiedCommand<T, R> message, CancellationToken cancellationToken)
         {
-            var alreadyExists = await _requestManager.ExistAsync(message.Id);
+            var alreadyExists = await _requestManager.ExistAsync(message.Id).ConfigureAwait(false);
             if (alreadyExists)
             {
                 return CreateResultForDuplicateRequest();
             }
             else
             {
-                await _requestManager.CreateRequestForCommandAsync<T>(message.Id);
+                await _requestManager.CreateRequestForCommandAsync<T>(message.Id).ConfigureAwait(false);
 				try
 				{
-					// Send the embeded business command to mediator so it runs its related CommandHandler 
-					var result = await _mediator.Send(message.Command);
+					// Send the embedded business command to mediator so it runs its related CommandHandler 
+					var result = await _mediator.Send(message.Command, cancellationToken).ConfigureAwait(false);
 					return result;
 				}
 				catch

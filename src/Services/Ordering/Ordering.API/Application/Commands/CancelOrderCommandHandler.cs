@@ -4,6 +4,8 @@ using Microsoft.eShopOnContainers.Services.Ordering.Domain.AggregatesModel.Order
 using Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Idempotency;
 using System.Threading;
 using System.Threading.Tasks;
+using Ordering.API.Application.IntegrationEvents.Events;
+using Ordering.Domain.Events;
 
 namespace Ordering.API.Application.Commands
 {
@@ -25,14 +27,15 @@ namespace Ordering.API.Application.Commands
         /// <returns></returns>
         public async Task<bool> Handle(CancelOrderCommand command, CancellationToken cancellationToken)
         {
-            var orderToUpdate = await _orderRepository.GetAsync(command.OrderNumber);
+            var orderToUpdate = await _orderRepository.GetAsync(command.OrderNumber).ConfigureAwait(false);
             if(orderToUpdate == null)
             {
                 return false;
             }
 
             orderToUpdate.SetCancelledStatus();
-            return await _orderRepository.UnitOfWork.SaveEntitiesAsync();
+
+            return await _orderRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 

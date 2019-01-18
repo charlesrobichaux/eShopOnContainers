@@ -13,7 +13,7 @@ namespace Ordering.API.Infrastructure.Behaviors
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             _logger.LogInformation($"Handling {typeof(TRequest).Name}");
-            var response = await next();
+            var response = await next().ConfigureAwait(false);
             _logger.LogInformation($"Handled {typeof(TResponse).Name}");
             return response;
         }

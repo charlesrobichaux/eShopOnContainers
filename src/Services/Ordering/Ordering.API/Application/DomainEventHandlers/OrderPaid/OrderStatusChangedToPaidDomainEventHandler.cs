@@ -19,18 +19,17 @@
         private readonly ILoggerFactory _logger;
         private readonly IBuyerRepository _buyerRepository;
         private readonly IOrderingIntegrationEventService _orderingIntegrationEventService;
-        
 
         public OrderStatusChangedToPaidDomainEventHandler(
             IOrderRepository orderRepository, ILoggerFactory logger,
             IBuyerRepository buyerRepository,
-            IOrderingIntegrationEventService orderingIntegrationEventService
-            )
+            IOrderingIntegrationEventService orderingIntegrationEventService)
         {
             _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _buyerRepository = buyerRepository ?? throw new ArgumentNullException(nameof(buyerRepository));
-            _orderingIntegrationEventService = orderingIntegrationEventService ?? throw new ArgumentNullException(nameof(orderingIntegrationEventService));            
+            _orderingIntegrationEventService = orderingIntegrationEventService ?? throw new ArgumentNullException(nameof(orderingIntegrationEventService));
+
         }
 
         public async Task Handle(OrderStatusChangedToPaidDomainEvent orderStatusChangedToPaidDomainEvent, CancellationToken cancellationToken)
@@ -39,8 +38,8 @@
              .LogTrace($"Order with Id: {orderStatusChangedToPaidDomainEvent.OrderId} has been successfully updated with " +
                        $"a status order id: {OrderStatus.Paid.Id}");
 
-            var order = await _orderRepository.GetAsync(orderStatusChangedToPaidDomainEvent.OrderId);
-            var buyer = await _buyerRepository.FindByIdAsync(order.GetBuyerId.Value.ToString());
+            var order = await _orderRepository.GetAsync(orderStatusChangedToPaidDomainEvent.OrderId).ConfigureAwait(false);
+            var buyer = await _buyerRepository.FindByIdAsync(order.GetBuyerId.Value.ToString()).ConfigureAwait(false);
 
             var orderStockList = orderStatusChangedToPaidDomainEvent.OrderItems
                 .Select(orderItem => new OrderStockItem(orderItem.ProductId, orderItem.GetUnits()));
@@ -51,7 +50,7 @@
                 buyer.Name,
                 orderStockList);
 
-            await _orderingIntegrationEventService.AddAndSaveEventAsync(orderStatusChangedToPaidIntegrationEvent);         
+            await _orderingIntegrationEventService.AddAndSaveEventAsync(orderStatusChangedToPaidIntegrationEvent).ConfigureAwait(false);         
         }
     }  
 }

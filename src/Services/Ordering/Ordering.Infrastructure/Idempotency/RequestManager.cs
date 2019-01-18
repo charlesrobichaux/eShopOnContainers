@@ -8,23 +8,20 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Idempoten
     {
         private readonly OrderingContext _context;
 
-        public RequestManager(OrderingContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        public RequestManager(OrderingContext context) => _context = context ?? throw new ArgumentNullException(nameof(context));
 
 
         public async Task<bool> ExistAsync(Guid id)
         {
             var request = await _context.
-                FindAsync<ClientRequest>(id);
+                FindAsync<ClientRequest>(id).ConfigureAwait(false);
 
             return request != null;
         }
 
         public async Task CreateRequestForCommandAsync<T>(Guid id)
         { 
-            var exists = await ExistAsync(id);
+            var exists = await ExistAsync(id).ConfigureAwait(false);
 
             var request = exists ? 
                 throw new OrderingDomainException($"Request with {id} already exists") : 
@@ -37,7 +34,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Idempoten
 
             _context.Add(request);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

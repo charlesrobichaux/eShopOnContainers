@@ -1,12 +1,11 @@
-﻿using FluentValidation;
-using MediatR;
-using Ordering.Domain.Exceptions;
-using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
+using MediatR;
+using Ordering.Domain.Exceptions;
 
-namespace Ordering.API.Infrastructure.Behaviors
+namespace Ordering.API.Application.Behaviors
 {
     public class ValidatorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     {
@@ -27,7 +26,7 @@ namespace Ordering.API.Infrastructure.Behaviors
                     $"Command Validation Errors for type {typeof(TRequest).Name}", new ValidationException("Validation exception", failures));
             }
 
-            var response = await next();
+            var response = await next().ConfigureAwait(false);
             return response;
         }
     }

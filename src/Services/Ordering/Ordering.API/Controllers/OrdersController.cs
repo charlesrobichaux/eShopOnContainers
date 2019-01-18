@@ -39,7 +39,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers
             if (Guid.TryParse(requestId, out Guid guid) && guid != Guid.Empty)
             {
                 var requestCancelOrder = new IdentifiedCommand<CancelOrderCommand, bool>(command, guid);
-                commandResult = await _mediator.Send(requestCancelOrder);
+                commandResult = await _mediator.Send(requestCancelOrder).ConfigureAwait(false);
             }
 
             if (!commandResult)
@@ -61,7 +61,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers
             if (Guid.TryParse(requestId, out Guid guid) && guid != Guid.Empty)
             {
                 var requestShipOrder = new IdentifiedCommand<ShipOrderCommand, bool>(command, guid);
-                commandResult = await _mediator.Send(requestShipOrder);
+                commandResult = await _mediator.Send(requestShipOrder).ConfigureAwait(false);
             }
 
             if (!commandResult)
@@ -80,7 +80,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers
         {
             try
             {
-                var order = await _orderQueries.GetOrderAsync(orderId);
+                var order = await _orderQueries.GetOrderAsync(orderId).ConfigureAwait(false);
 
                 return Ok(order);
             }
@@ -95,7 +95,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers
         public async Task<ActionResult<IEnumerable<OrderSummary>>> GetOrdersAsync()
         {
             var userid = _identityService.GetUserIdentity();
-            var orders = await _orderQueries.GetOrdersFromUserAsync(Guid.Parse(userid));
+            var orders = await _orderQueries.GetOrdersFromUserAsync(Guid.Parse(userid)).ConfigureAwait(false);
 
             return Ok(orders);
         }
@@ -105,7 +105,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers
         [ProducesResponseType(typeof(IEnumerable<CardType>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<CardType>>> GetCardTypesAsync()
         {
-            var cardTypes = await _orderQueries.GetCardTypesAsync();
+            var cardTypes = await _orderQueries.GetCardTypesAsync().ConfigureAwait(false);
 
             return Ok(cardTypes);
         }
@@ -114,7 +114,7 @@ namespace Microsoft.eShopOnContainers.Services.Ordering.API.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderDraftDTO>> CreateOrderDraftFromBasketDataAsync([FromBody] CreateOrderDraftCommand createOrderDraftCommand)
         {
-            return await _mediator.Send(createOrderDraftCommand);
+            return await _mediator.Send(createOrderDraftCommand).ConfigureAwait(false);
         }
     }
 }

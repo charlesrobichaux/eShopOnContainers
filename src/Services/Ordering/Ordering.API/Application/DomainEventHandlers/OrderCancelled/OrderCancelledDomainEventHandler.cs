@@ -37,11 +37,11 @@ namespace Ordering.API.Application.DomainEventHandlers.OrderCancelled
              .LogTrace($"Order with Id: {orderCancelledDomainEvent.Order.Id} has been successfully updated with " +
                        $"a status order id: {OrderStatus.Shipped.Id}");
 
-            var order = await _orderRepository.GetAsync(orderCancelledDomainEvent.Order.Id);
-            var buyer = await _buyerRepository.FindByIdAsync(order.GetBuyerId.Value.ToString());
+            var order = await _orderRepository.GetAsync(orderCancelledDomainEvent.Order.Id).ConfigureAwait(false);
+            var buyer = await _buyerRepository.FindByIdAsync(order.GetBuyerId.Value.ToString()).ConfigureAwait(false);
 
             var orderStatusChangedToCancelledIntegrationEvent = new OrderStatusChangedToCancelledIntegrationEvent(order.Id, order.OrderStatus.Name, buyer.Name);
-            await _orderingIntegrationEventService.AddAndSaveEventAsync(orderStatusChangedToCancelledIntegrationEvent);
+            await _orderingIntegrationEventService.AddAndSaveEventAsync(orderStatusChangedToCancelledIntegrationEvent).ConfigureAwait(false);
         }
     }
 }

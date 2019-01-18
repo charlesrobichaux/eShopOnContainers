@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.eShopOnContainers.Services.Ordering.API.Application.Commands;
 using Microsoft.Extensions.Logging;
 using Ordering.API.Application.IntegrationEvents.Events;
+using NServiceBus;
 
 namespace Ordering.API.Application.IntegrationEvents.EventHandling
 {
-    public class UserCheckoutAcceptedIntegrationEventHandler : IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>
+    public class UserCheckoutAcceptedIntegrationEventHandler : IHandleMessages<UserCheckoutAcceptedIntegrationEvent>
     {
         private readonly IMediator _mediator;
         private readonly ILoggerFactory _logger;        
@@ -28,8 +29,9 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
         /// basket.api once it has successfully process the 
         /// order items.
         /// </param>
+        /// <param name="context"></param>
         /// <returns></returns>
-        public async Task Handle(UserCheckoutAcceptedIntegrationEvent eventMsg)
+        public async Task Handle(UserCheckoutAcceptedIntegrationEvent eventMsg, IMessageHandlerContext context)
         {
             var result = false;
            
@@ -41,7 +43,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandling
                     eventMsg.CardSecurityNumber, eventMsg.CardTypeId);
 
                 var requestCreateOrder = new IdentifiedCommand<CreateOrderCommand, bool>(createOrderCommand, eventMsg.RequestId);
-                result = await _mediator.Send(requestCreateOrder);
+                result = await _mediator.Send(requestCreateOrder).ConfigureAwait(false);
             }            
 
             _logger.CreateLogger(nameof(UserCheckoutAcceptedIntegrationEventHandler))

@@ -25,11 +25,11 @@ namespace Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator.Services
         {
             var url = _urls.Orders + UrlsConfig.OrdersOperations.GetOrderDraft();
             var content = new StringContent(JsonConvert.SerializeObject(basket), System.Text.Encoding.UTF8, "application/json");
-            var response = await _apiClient.PostAsync(url, content);
+            var response = await _apiClient.PostAsync(url, content).ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
 
-            var ordersDraftResponse = await response.Content.ReadAsStringAsync();
+            var ordersDraftResponse = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<OrderData>(ordersDraftResponse);
         }

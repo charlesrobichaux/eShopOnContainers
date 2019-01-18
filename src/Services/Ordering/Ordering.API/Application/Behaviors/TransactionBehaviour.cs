@@ -37,16 +37,16 @@ namespace Ordering.API.Application.Behaviors
                 {
                     _logger.LogInformation($"Begin transaction {typeof(TRequest).Name}");
 
-                    await _dbContext.BeginTransactionAsync();
+                    await _dbContext.BeginTransactionAsync().ConfigureAwait(false);
 
-                    response = await next();
+                    response = await next().ConfigureAwait(false);
 
-                    await _dbContext.CommitTransactionAsync();
+                    await _dbContext.CommitTransactionAsync().ConfigureAwait(false);
 
                     _logger.LogInformation($"Committed transaction {typeof(TRequest).Name}");
 
-                    await _orderingIntegrationEventService.PublishEventsThroughEventBusAsync();
-                });
+                    await _orderingIntegrationEventService.PublishEventsThroughEventBusAsync().ConfigureAwait(false);
+                }).ConfigureAwait(false);
 
                 return response;
             }

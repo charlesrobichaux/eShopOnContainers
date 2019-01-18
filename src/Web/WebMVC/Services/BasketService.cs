@@ -12,7 +12,6 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
 {
     public class BasketService : IBasketService
     {
-        private readonly IOptions<AppSettings> _settings;
         private readonly HttpClient _apiClient;
         private readonly string _basketByPassUrl;
         private readonly string _purchaseUrl;
@@ -22,10 +21,9 @@ namespace Microsoft.eShopOnContainers.WebMVC.Services
         public BasketService(HttpClient httpClient, IOptions<AppSettings> settings)
         {
             _apiClient = httpClient;
-            _settings = settings;
 
-            _basketByPassUrl = $"{_settings.Value.PurchaseUrl}/api/v1/b/basket";
-            _purchaseUrl = $"{_settings.Value.PurchaseUrl}/api/v1";
+            _basketByPassUrl = $"{settings.Value.PurchaseUrl}/api/v1/b/basket";
+            _purchaseUrl = $"{settings.Value.PurchaseUrl}/api/v1";
         }
 
         public async Task<Basket> GetBasket(ApplicationUser user)

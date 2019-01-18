@@ -4,12 +4,13 @@
     using Marketing.API.Model;
     using Microsoft.eShopOnContainers.BuildingBlocks.EventBus.Abstractions;
     using Microsoft.eShopOnContainers.Services.Marketing.API.Infrastructure.Repositories;
+    using NServiceBus;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public class UserLocationUpdatedIntegrationEventHandler 
-        : IIntegrationEventHandler<UserLocationUpdatedIntegrationEvent>
+        : IHandleMessages<UserLocationUpdatedIntegrationEvent>
     {
         private readonly IMarketingDataRepository _marketingDataRepository;
 
@@ -18,17 +19,17 @@
             _marketingDataRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public async Task Handle(UserLocationUpdatedIntegrationEvent @event)
+        public async Task Handle(UserLocationUpdatedIntegrationEvent @event, IMessageHandlerContext context)
         {
-            var userMarketingData = await _marketingDataRepository.GetAsync(@event.UserId);
+            var userMarketingData = await _marketingDataRepository.GetAsync(@event.UserId).ConfigureAwait(false);
             userMarketingData = userMarketingData ?? 
                 new MarketingData() { UserId = @event.UserId };
 
             userMarketingData.Locations = MapUpdatedUserLocations(@event.LocationList);
-            await _marketingDataRepository.UpdateLocationAsync(userMarketingData);
+            await _marketingDataRepository.UpdateLocationAsync(userMarketingData).ConfigureAwait(false);
         }
 
-        private List<Location> MapUpdatedUserLocations(List<UserLocationDetails> newUserLocations)
+        private static List<Location> MapUpdatedUserLocations(List<UserLocationDetails> newUserLocations)
         {
             var result = new List<Location>();
             newUserLocations.ForEach(location => {

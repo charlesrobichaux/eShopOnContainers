@@ -12,10 +12,13 @@ using Microsoft.eShopOnContainers.BuildingBlocks.EventBusServiceBus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
+using NServiceBus.Persistence.Sql;
 using Payment.API.IntegrationEvents.EventHandling;
 using Payment.API.IntegrationEvents.Events;
 using RabbitMQ.Client;
 using System;
+using System.Data.SqlClient;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -83,9 +86,13 @@ namespace Payment.API
 
             RegisterEventBus(services);
 
-            var container = new ContainerBuilder();
-            container.Populate(services);
-            return new AutofacServiceProvider(container.Build());
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.Populate(services);
+
+            // NServiceBus
+            var container = RegisterEventBus(containerBuilder);
+
+            return new AutofacServiceProvider(container);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -174,8 +181,89 @@ namespace Payment.API
 
         private void ConfigureEventBus(IApplicationBuilder app)
         {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            eventBus.Subscribe<OrderStatusChangedToStockConfirmedIntegrationEvent, OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+            //var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            //eventBus.Subscribe<OrderStatusChangedToStockConfirmedIntegrationEvent, OrderStatusChangedToStockConfirmedIntegrationEventHandler>();
+        }
+
+        private IContainer RegisterEventBus(ContainerBuilder containerBuilder)
+        {
+            EnsureSqlDatabaseExists();
+
+            IEndpointInstance endpoint = null;
+            containerBuilder.Register(c => endpoint)
+                .As<IEndpointInstance>()
+                .SingleInstance();
+
+            var container = containerBuilder.Build();
+
+            var endpointConfiguration = new EndpointConfiguration("Payment");
+
+            // Configure RabbitMQ transport
+            var transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+            transport.UseConventionalRoutingTopology();
+            transport.ConnectionString(GetRabbitConnectionString());
+
+            // Configure persistence
+            var persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+            persistence.SqlDialect<SqlDialect.MsSqlServer>();
+            persistence.ConnectionBuilder(connectionBuilder:
+                () => new SqlConnection(Configuration["ConnectionString"]));
+
+            // Use JSON.NET serializer
+            endpointConfiguration.UseSerialization<NewtonsoftSerializer>();
+
+            // Enable the Outbox.
+            endpointConfiguration.EnableOutbox();
+
+            // Make sure NServiceBus creates queues in RabbitMQ, tables in SQL Server, etc.
+            // You might want to turn this off in production, so that DevOps can use scripts to create these.
+            endpointConfiguration.EnableInstallers();
+
+            // Turn on auditing.
+            endpointConfiguration.AuditProcessedMessagesTo("audit");
+
+            // Define conventions
+            var conventions = endpointConfiguration.Conventions();
+            conventions.DefiningEventsAs(c => c.Namespace != null && c.Name.EndsWith("IntegrationEvent"));
+
+            // Configure the DI container.
+            endpointConfiguration.UseContainer<AutofacBuilder>(customizations: customizations =>
+            {
+                customizations.ExistingLifetimeScope(container);
+            });
+
+            // Start the endpoint and register it with ASP.NET Core DI
+            endpoint = NServiceBus.Endpoint.Start(endpointConfiguration).GetAwaiter().GetResult();
+
+            return container;
+        }
+
+        private void EnsureSqlDatabaseExists()
+        {
+            var builder = new SqlConnectionStringBuilder(Configuration["ConnectionString"]);
+            var originalCatalog = builder.InitialCatalog;
+
+            builder.InitialCatalog = "master";
+            var masterConnectionString = builder.ConnectionString;
+
+            using (var connection = new SqlConnection(masterConnectionString))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText =
+                    $"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '{originalCatalog}')" +
+                    $"  CREATE DATABASE [{originalCatalog}]";
+                command.ExecuteNonQuery();
+            }
+        }
+
+        private string GetRabbitConnectionString()
+        {
+            var host = Configuration["EventBusConnection"];
+            var user = Configuration["EventBusUserName"];
+            var password = Configuration["EventBusPassword"];
+
+            return string.IsNullOrEmpty(user) ? $"host={host}" : $"host={host};username={user};password={password};";
         }
     }
 
