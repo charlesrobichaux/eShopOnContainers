@@ -63,13 +63,19 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             //Configure logs
+<<<<<<< HEAD
             loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
+=======
+
+            //loggerFactory.AddAzureWebAppDiagnostics();
+            //loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
+>>>>>>> upstream/dev
 
             var pathBase = Configuration["PATH_BASE"];
 
             if (!string.IsNullOrEmpty(pathBase))
             {
-                loggerFactory.CreateLogger("init").LogDebug($"Using PATH BASE '{pathBase}'");
+                loggerFactory.CreateLogger<Startup>().LogDebug("Using PATH BASE '{pathBase}'", pathBase);
                 app.UsePathBase(pathBase);
             }
 
@@ -295,7 +301,8 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
 
                     var factory = new ConnectionFactory()
                     {
-                        HostName = configuration["EventBusConnection"]
+                        HostName = configuration["EventBusConnection"],
+                        DispatchConsumersAsync = true
                     };
 
                     if (!string.IsNullOrEmpty(configuration["EventBusUserName"]))

@@ -25,12 +25,20 @@ namespace OcelotApiGw
             builder.ConfigureServices(s => s.AddSingleton(builder))
                 .ConfigureAppConfiguration(ic => ic.AddJsonFile(Path.Combine("configuration", "configuration.json")))
                 .UseStartup<Startup>()
+<<<<<<< HEAD
                 .ConfigureLogging((hostingContext, loggingBuilder) =>
                 {
                     loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     loggingBuilder.AddConsole();
                     loggingBuilder.AddDebug();
 
+=======
+                .ConfigureLogging((hostingContext, loggingbuilder) =>
+                {
+                    loggingbuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    loggingbuilder.AddConsole();
+                    loggingbuilder.AddDebug();
+>>>>>>> upstream/dev
                 })
                 .UseSerilog((builderContext, config) =>
                 {

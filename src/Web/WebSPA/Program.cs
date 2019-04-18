@@ -27,7 +27,10 @@ namespace eShopConContainers.WebSPA
                     builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                     builder.AddConsole();
                     builder.AddDebug();
+<<<<<<< HEAD
                     // builder.AddEventSourceLogger();
+=======
+>>>>>>> upstream/dev
                     builder.AddAzureWebAppDiagnostics();
                 })
                 .UseApplicationInsights()

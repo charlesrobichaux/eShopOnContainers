@@ -3,12 +3,18 @@
 @model Microsoft.eShopOnContainers.WebMVC.ViewModels.Order
 
 @{
-    ViewData["Title"] = "Order Detail";
+     ViewData["Title"] = "Order Detail";
+     var headerList= new List<Header>() {
+     new Header() { Controller = "Catalog", Text = "Back to catalog" } };
 }
 
 <div class="esh-orders_detail">
+<<<<<<< HEAD
     @Html.PartialAsync("_Header", new List<Header>() {
         new Header() { Controller = "Catalog", Text = "Back to catalog" } })
+=======
+    <partial name="_Header" model="headerList"/>
+>>>>>>> upstream/dev
 
     <div class="container">
         <section class="esh-orders_detail-section">

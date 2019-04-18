@@ -22,7 +22,14 @@ namespace Basket.API.Infrastructure.Filters
 
                 operation.Security = new List<IDictionary<string, IEnumerable<string>>>
                 {
+<<<<<<< HEAD
                     new Dictionary<string, IEnumerable<string>> {{"oauth2", new[] {"basketapi"}}}
+=======
+                    new Dictionary<string, IEnumerable<string>>
+                    {
+                        { "oauth2", new [] { "basketapi" } }
+                    }
+>>>>>>> upstream/dev
                 };
             }
             // Had to add below when upgrading Swashbuckle to 2.8.0.

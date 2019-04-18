@@ -76,7 +76,7 @@ namespace OcelotApiGw
             services.AddOcelot(_cfg);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             var pathBase = _cfg["PATH_BASE"];
 
