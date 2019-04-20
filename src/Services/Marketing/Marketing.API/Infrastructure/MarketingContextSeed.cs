@@ -1,4 +1,6 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Marketing.API.Infrastructure
+﻿using Polly.Retry;
+
+namespace Microsoft.eShopOnContainers.Services.Marketing.API.Infrastructure
 {
     using Microsoft.eShopOnContainers.Services.Marketing.API.Model;
     using Microsoft.Extensions.Logging;
@@ -68,7 +70,7 @@
             };
         }
      
-        private Policy CreatePolicy(int retries, ILogger<MarketingContextSeed> logger, string prefix)
+        private AsyncRetryPolicy CreatePolicy(int retries, ILogger<MarketingContextSeed> logger, string prefix)
         {
             return Policy.Handle<SqlException>().
                 WaitAndRetryAsync(

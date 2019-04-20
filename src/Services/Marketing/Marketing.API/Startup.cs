@@ -180,12 +180,8 @@
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory)
         {
-<<<<<<< HEAD
-            loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
-=======
             //loggerFactory.AddAzureWebAppDiagnostics();
             //loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
->>>>>>> upstream/dev
 
             var pathBase = Configuration["PATH_BASE"];
 

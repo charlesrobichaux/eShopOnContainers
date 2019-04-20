@@ -1,4 +1,6 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Catalog.API.Infrastructure
+﻿using Polly.Retry;
+
+namespace Microsoft.eShopOnContainers.Services.Catalog.API.Infrastructure
 {
     using Extensions.Logging;
     using global::Catalog.API.Extensions;
@@ -369,7 +371,7 @@
             }
         }
 
-        private Policy CreatePolicy( ILogger<CatalogContextSeed> logger, string prefix,int retries = 3)
+        private AsyncRetryPolicy CreatePolicy( ILogger<CatalogContextSeed> logger, string prefix,int retries = 3)
         {
             return Policy.Handle<SqlException>().
                 WaitAndRetryAsync(

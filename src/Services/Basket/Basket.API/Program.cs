@@ -1,9 +1,7 @@
 ﻿using Basket.API.Infrastructure.Middlewares;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
 using System.IO;
@@ -48,42 +46,6 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
                 .UseFailing(options =>
                     options.ConfigPath = "/Failing")
                 .UseStartup<Startup>()
-<<<<<<< HEAD
-                .ConfigureAppConfiguration((builderContext, config) =>
-                {
-                    var builtConfig = config.Build();
-
-                    var configurationBuilder = new ConfigurationBuilder();
-
-                    if (Convert.ToBoolean(builtConfig["UseVault"]))
-                    {
-                        configurationBuilder.AddAzureKeyVault(
-                            $"https://{builtConfig["Vault:Name"]}.vault.azure.net/",
-                            builtConfig["Vault:ClientId"],
-                            builtConfig["Vault:ClientSecret"]);
-                    }
-
-                    configurationBuilder.AddEnvironmentVariables();
-
-                    config.AddConfiguration(configurationBuilder.Build());
-                })
-                .ConfigureLogging((hostingContext, builder) =>
-                {
-                    builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    // builder.AddEventSourceLogger();
-                    builder.AddAzureWebAppDiagnostics();
-                })
-                .UseSerilog((builderContext, config) =>
-                {
-                    config
-                        .MinimumLevel.Information()
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console();
-                })
-=======
->>>>>>> upstream/dev
                 .UseApplicationInsights()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseConfiguration(configuration)
@@ -116,10 +78,11 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
 
             if (config.GetValue<bool>("UseVault", false))
             {
-                builder.AddAzureKeyVault(
-                    $"https://{config["Vault:Name"]}.vault.azure.net/",
-                    config["Vault:ClientId"],
-                    config["Vault:ClientSecret"]);
+                // TODO: Why doesn't this work? I have the necessary Nuget package installed so I don't understand https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.configuration.azurekeyvaultconfigurationextensions.addazurekeyvault?view=aspnetcore-2.2
+                //builder.AddAzureKeyVault(
+                //    $"https://{config["Vault:Name"]}.vault.azure.net/",
+                //    config["Vault:ClientId"],
+                //    config["Vault:ClientSecret"]);
             }
 
             return builder.Build();

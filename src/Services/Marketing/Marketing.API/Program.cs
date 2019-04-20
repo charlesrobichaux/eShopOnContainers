@@ -87,27 +87,6 @@
 
             var config = builder.Build();
 
-<<<<<<< HEAD
-                    config.AddConfiguration(configurationBuilder.Build());
-                })
-                .ConfigureLogging((hostingContext, builder) =>
-                {
-                    builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    // builder.AddEventSourceLogger();
-                    builder.AddAzureWebAppDiagnostics();
-                })
-                .UseApplicationInsights()
-                .UseSerilog((builderContext, config) =>
-                {
-                    config
-                        .MinimumLevel.Information()
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console();
-                })
-                .Build();
-=======
             if (config.GetValue<bool>("UseVault", false))
             {
                 builder.AddAzureKeyVault(
@@ -118,6 +97,5 @@
 
             return builder.Build();
         }
->>>>>>> upstream/dev
     }
 }

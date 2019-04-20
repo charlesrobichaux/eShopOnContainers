@@ -1,4 +1,6 @@
-﻿namespace Microsoft.eShopOnContainers.Services.Ordering.API.Infrastructure
+﻿using Polly.Retry;
+
+namespace Microsoft.eShopOnContainers.Services.Ordering.API.Infrastructure
 {
     using global::Ordering.API.Extensions;
     using Microsoft.AspNetCore.Hosting;
@@ -174,7 +176,7 @@
         }
 
      
-        private Policy CreatePolicy( ILogger<OrderingContextSeed> logger, string prefix, int retries =3)
+        private AsyncRetryPolicy CreatePolicy( ILogger<OrderingContextSeed> logger, string prefix, int retries =3)
         {
             return Policy.Handle<SqlException>().
                 WaitAndRetryAsync(

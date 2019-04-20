@@ -63,13 +63,9 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             //Configure logs
-<<<<<<< HEAD
-            loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
-=======
 
             //loggerFactory.AddAzureWebAppDiagnostics();
             //loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
->>>>>>> upstream/dev
 
             var pathBase = Configuration["PATH_BASE"];
 

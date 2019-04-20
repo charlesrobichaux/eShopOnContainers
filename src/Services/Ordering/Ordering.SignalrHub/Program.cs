@@ -47,25 +47,8 @@ namespace Ordering.SignalrHub
             WebHost.CreateDefaultBuilder(args)
                 .CaptureStartupErrors(false)
                 .UseStartup<Startup>()
-<<<<<<< HEAD
-                .ConfigureLogging((hostingContext, builder) =>
-                {
-                    builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    builder.AddAzureWebAppDiagnostics();
-                })
-                .UseSerilog((builderContext, config) =>
-                {
-                    config
-                        .MinimumLevel.Information()
-                        .Enrich.FromLogContext()
-                        .WriteTo.Console();
-                })
-=======
                 .UseConfiguration(configuration)
                 .UseSerilog()
->>>>>>> upstream/dev
                 .Build();
 
         private static Serilog.ILogger CreateSerilogLogger(IConfiguration configuration)

@@ -109,21 +109,10 @@ namespace WebStatus
             {
                 try
                 {
-<<<<<<< HEAD
-                    builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    // builder.AddEventSourceLogger();
-                    builder.AddAzureWebAppDiagnostics();
-                })
-                .UseApplicationInsights()
-                .UseSerilog((builderContext, config) =>
-=======
                     // Try to load the referenced assembly...
                     assemblies.Add(Assembly.Load(dependencyName));
                 }
                 catch
->>>>>>> upstream/dev
                 {
                     // Failed to load assembly. Skip it.
                 }

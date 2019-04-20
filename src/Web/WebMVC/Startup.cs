@@ -1,5 +1,5 @@
 ﻿using Devspaces.Support;
-using HealthChecks.UI.Client;
+
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.ServiceFabric;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -21,7 +21,10 @@ using Polly.Extensions.Http;
 using StackExchange.Redis;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Mime;
+using Newtonsoft.Json;
 using WebMVC.Infrastructure;
 using WebMVC.Infrastructure.Middlewares;
 using WebMVC.Services;
@@ -53,18 +56,25 @@ namespace Microsoft.eShopOnContainers.WebMVC
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-<<<<<<< HEAD
-            loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
-=======
 
             //loggerFactory.AddAzureWebAppDiagnostics();
             //loggerFactory.AddApplicationInsights(app.ApplicationServices, LogLevel.Trace);
->>>>>>> upstream/dev
 
             app.UseHealthChecks("/hc", new HealthCheckOptions()
             {
                 Predicate = _ => true,
-                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                // ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+                ResponseWriter = async (context, report) =>
+                {
+                    var result = JsonConvert.SerializeObject(
+                        new
+                        {
+                            status = report.Status.ToString(),
+                            errors = report.Entries.Select(e => new { key = e.Key, value = Enum.GetName(typeof(HealthStatus), e.Value.Status) })
+                        });
+                    context.Response.ContentType = MediaTypeNames.Application.Json;
+                    await context.Response.WriteAsync(result);
+                }
             });
 
             if (env.IsDevelopment())

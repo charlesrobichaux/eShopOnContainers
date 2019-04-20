@@ -45,21 +45,6 @@ namespace Payment.API
             WebHost.CreateDefaultBuilder(args)
                 .CaptureStartupErrors(false)
                 .UseStartup<Startup>()
-<<<<<<< HEAD
-                .ConfigureAppConfiguration((builderContext, config) =>
-                {
-                    config.AddEnvironmentVariables();
-                })
-                .ConfigureLogging((hostingContext, builder) =>
-                {
-                    builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    // builder.AddEventSourceLogger();
-                    builder.AddAzureWebAppDiagnostics();
-                })
-=======
->>>>>>> upstream/dev
                 .UseApplicationInsights()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseConfiguration(configuration)

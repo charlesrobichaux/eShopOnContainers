@@ -42,26 +42,6 @@ namespace Microsoft.eShopOnContainers.Services.Identity.API
                     })
                     .MigrateDbContext<ConfigurationDbContext>((context, services) =>
                     {
-<<<<<<< HEAD
-                        configurationBuilder.AddAzureKeyVault(
-                            $"https://{builtConfig["Vault:Name"]}.vault.azure.net/",
-                            builtConfig["Vault:ClientId"],
-                            builtConfig["Vault:ClientSecret"]);
-                    }
-
-                    configurationBuilder.AddEnvironmentVariables();
-
-                    config.AddConfiguration(configurationBuilder.Build());
-                })
-                .ConfigureLogging((hostingContext, builder) =>
-                {
-                    builder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    builder.AddConsole();
-                    builder.AddDebug();
-                    // builder.AddEventSourceLogger();
-                    builder.AddAzureWebAppDiagnostics();
-                })
-=======
                         new ConfigurationDbContextSeed()
                             .SeedAsync(context, configuration)
                             .Wait();
@@ -87,7 +67,6 @@ namespace Microsoft.eShopOnContainers.Services.Identity.API
             WebHost.CreateDefaultBuilder(args)
                 .CaptureStartupErrors(false)
                 .UseStartup<Startup>()
->>>>>>> upstream/dev
                 .UseApplicationInsights()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseConfiguration(configuration)
